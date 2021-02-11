@@ -11,6 +11,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "graphic_engine.h"
+#include "game.h"
 
 int game_loop_init(Game *game, Graphic_engine **gengine, char *file_name);
 void game_loop_run(Game game, Graphic_engine *gengine);
