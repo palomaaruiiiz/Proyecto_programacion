@@ -1,7 +1,7 @@
 Game: game_loop.o
 	gcc game_loop.o -o Game
 
-game_loop.o: game_loop.o
+game_loop.o: game_loop.c
 	gcc -c -Wall game_loop.c
 
 game.o: game.c game.h
