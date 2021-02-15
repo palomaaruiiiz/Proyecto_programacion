@@ -1,11 +1,11 @@
-/** 
+/**
  * @brief It implements the game interface and all the associated callbacks
  * for each command
- * 
+ *
  * @file game.c
  * @author Profesores PPROG
- * @version 1.0 
- * @date 13-01-2015 
+ * @version 1.0
+ * @date 13-01-2015
  * @copyright GNU Public License
  */
 
@@ -22,7 +22,7 @@
 typedef void (*callback_fn)(Game* game);
 
 /**
-   List of callbacks for each command in the game 
+   List of callbacks for each command in the game
 */
 void game_callback_unknown(Game* game);
 void game_callback_exit(Game* game);
@@ -51,15 +51,15 @@ STATUS game_set_object_location(Game* game, Id id);
 
 STATUS game_create(Game* game) {
   int i;
-  
+
   for (i = 0; i < MAX_SPACES; i++) {
     game->spaces[i] = NULL;
   }
-  
+
   game->player_location = NO_ID;
   game->object_location = NO_ID;
   game->last_cmd = NO_CMD;
-  
+
   return OK;
 }
 
@@ -83,7 +83,7 @@ STATUS game_destroy(Game* game) {
   for (i = 0; (i < MAX_SPACES) && (game->spaces[i] != NULL); i++) {
     space_destroy(game->spaces[i]);
   }
-        
+
   return OK;
 }
 
@@ -122,18 +122,18 @@ Space* game_get_space(Game* game, Id id){
   if (id == NO_ID) {
     return NULL;
   }
-    
+
   for (i = 0; i < MAX_SPACES && game->spaces[i] != NULL; i++) {
     if (id == space_get_id(game->spaces[i])){
       return game->spaces[i];
     }
   }
-    
+
   return NULL;
 }
 
 STATUS game_set_player_location(Game* game, Id id) {
-    
+
   if (id == NO_ID) {
     return ERROR;
   }
@@ -143,7 +143,7 @@ STATUS game_set_player_location(Game* game, Id id) {
 }
 
 STATUS game_set_object_location(Game* game, Id id) {
-  
+
   int i = 0;
 
   if (id == NO_ID) {
@@ -175,15 +175,15 @@ T_Command game_get_last_command(Game* game){
 
 void game_print_data(Game* game) {
   int i = 0;
-  
+
   printf("\n\n-------------\n\n");
-  
+
   printf("=> Spaces: \n");
   for (i = 0; i < MAX_SPACES && game->spaces[i] != NULL; i++) {
     space_print(game->spaces[i]);
   }
-  
-  printf("=> Object location: %d\n", (int) game->object_location);    
+
+  printf("=> Object location: %d\n", (int) game->object_location);
   printf("=> Player location: %d\n", (int) game->player_location);
   printf("prompt:> ");
 }
@@ -193,7 +193,7 @@ BOOL game_is_over(Game* game) {
 }
 
 /**
-   Callbacks implementation for each action 
+   Callbacks implementation for each action
 */
 
 void game_callback_unknown(Game* game) {
@@ -206,12 +206,12 @@ void game_callback_next(Game* game) {
   int i = 0;
   Id current_id = NO_ID;
   Id space_id = NO_ID;
-  
+
   space_id = game_get_player_location(game);
   if (space_id == NO_ID) {
     return;
   }
-  
+
   for (i = 0; i < MAX_SPACES && game->spaces[i] != NULL; i++) {
     current_id = space_get_id(game->spaces[i]);
     if (current_id == space_id) {
@@ -228,13 +228,13 @@ void game_callback_back(Game* game) {
   int i = 0;
   Id current_id = NO_ID;
   Id space_id = NO_ID;
-  
+
   space_id = game_get_player_location(game);
-  
+
   if (NO_ID == space_id) {
     return;
   }
-  
+
   for (i = 0; i < MAX_SPACES && game->spaces[i] != NULL; i++) {
     current_id = space_get_id(game->spaces[i]);
     if (current_id == space_id) {
@@ -255,17 +255,18 @@ STATUS game_load_spaces(Game* game, char* filename) {
   Id id = NO_ID, north = NO_ID, east = NO_ID, south = NO_ID, west = NO_ID;
   Space* space = NULL;
   STATUS status = OK;
-  
+
   if (!filename) {
     return ERROR;
   }
-  
+
   file = fopen(filename, "r");
   if (file == NULL) {
     return ERROR;
   }
-  
+  /*Scroll down the data file .*/
   while (fgets(line, WORD_SIZE, file)) {
+    /*Parse lines into usable data .*/
     if (strncmp("#s:", line, 3) == 0) {
       toks = strtok(line + 3, "|");
       id = atol(toks);
@@ -279,26 +280,29 @@ STATUS game_load_spaces(Game* game, char* filename) {
       south = atol(toks);
       toks = strtok(NULL, "|");
       west = atol(toks);
-#ifdef DEBUG 
+
+      /*Ni zorra de que hace .*/
+      #ifdef DEBUG
       printf("Leido: %ld|%s|%ld|%ld|%ld|%ld\n", id, name, north, east, south, west);
-#endif
+      #endif
+      /*Asign properties to the newly created space and add it to the game .*/
       space = space_create(id);
       if (space != NULL) {
-	space_set_name(space, name);
-	space_set_north(space, north);
-	space_set_east(space, east);
-	space_set_south(space, south);
-	space_set_west(space, west);
-	game_add_space(game, space);
+	       space_set_name(space, name);
+	       space_set_north(space, north);
+	       space_set_east(space, east);
+	       space_set_south(space, south);
+	       space_set_west(space, west);
+	       game_add_space(game, space);
       }
     }
   }
-  
+
   if (ferror(file)) {
     status = ERROR;
   }
-  
+
   fclose(file);
-  
+
   return status;
 }
